@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>自助式数据获取平台</title>
+    <style>
+
+        [v-cloak] {
+            display: none;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #app {
+            font-family: 'Avenir', Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .head {
+            height: 84px;
+            display: flex;
+            align-items: center;
+            background-color: #1C1616;
+            padding-left: 28px;
+        }
+
+        .logo-img-wrap {
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .head-title {
+            padding-top: 10px;
+            margin-left: 21px;
+            font-size: 20px;
+            font-weight: bolder;
+            color: #fff;
+        }
+
+        .main {
+            height: calc(100% - 84px);
+            overflow-y: auto;
+            padding: 0 60px;
+            background-color: #fff;
+        }
+
+        .list-title {
+            padding: 27px 0 14px;
+            border-bottom: 1px solid #D1D1D1;
+            text-align: left;
+            color: #6C6C6C;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .list-title .status-btn {
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 4px 16px;
+            background-color: #1c1515;
+            font-size: 14px;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+        }
+
+        .list-title .crawler-name {
+            color: #00a1ff;
+            border-radius: 5px;
+            padding: 4px 16px;
+            font-size: 18px;
+            font-weight: bolder;
+        }
+
+        .list-search-icon {
+            display: inline-flex;
+            align-content: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            margin-right: 5px;
+            background-image: url("static/images/refresh.png");
+            background-size: 100% auto;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+
+        .web-crawler-list-wrap .list-reset {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .list-item {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid #D1D1D1;
+        }
+
+
+        .list-item .list-item-logo-wrap {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+        }
+
+        .list-item-logo-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .list-item .list-item-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: flex-start;
+
+            flex: 1;
+
+            margin-left: 26px;
+        }
+
+        .list-item-operate {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: flex-end;
+        }
+
+        .list-item-operate-describe {
+            font-size: 14px;
+            color: #6C6C6C;
+            font-style: italic;
+        }
+
+
+        .status-btn {
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .main-title {
+            display: flex;
+            align-items: center;
+        }
+
+        .main-title .title {
+            font-size: 22px;
+        }
+
+        .sub-title {
+            color: #6C6C6C;
+            font-size: 14px;
+        }
+
+        .main-title-btn {
+            padding: 4px 10px;
+            margin-left: 38px;
+            font-size: 13px;
+            font-style: italic;
+            display: block;
+            cursor: inherit;
+        }
+
+        .operate-btn {
+            padding: 4px 20px;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        .btn-start {
+            background-color: #007D1C;
+        }
+
+        .btn-stop {
+            background-color: #008BB9;
+        }
+
+        .btn-stoping {
+            background-color: #dcdcdc;
+        }
+
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="head">
+        <span class="logo-img-wrap"><img src="static/images/logo.png" alt="logo" class="logo-img"></span>
+        <span class="head-title">自助式数据获取平台</span>
+    </div>
+    <div class="main">
+        <div class="list-title">
+            <div>
+                <span class="crawler-name">成电彭于晏:爬虫</span>
+                <span>爬虫列表</span>
+            </div>
+            <span class="status-btn" @click="getListData()"><i class="list-search-icon"></i>刷新</span>
+        </div>
+        <div class="web-crawler-list-wrap">
+            <ul class="list-reset" v-if="!isPosting">
+                <li class="list-item" v-for="(item,index) in list" :key="index">
+                    <span class="list-item-logo-wrap"><img :src="item.logo" alt="" class="list-item-logo-img"></span>
+                    <div class="list-item-content">
+                        <div class="main-title">
+                            {% verbatim myblock %}
+                            <span class="title" v-cloak>{{item.name}}</span>
+                            {% endverbatim myblock %}
+                            {% verbatim myblock %}
+                            <span class="status-btn main-title-btn" :class="[computedTitleBtn(item).class]">{{computedTitleBtn(item).text}}</span>
+                            {% endverbatim myblock %}
+                        </div>
+
+                        <div class="sub-title" v-cloak>
+                            {% verbatim myblock %}
+                            {{item.desc}}
+                            {% endverbatim myblock %}
+                        </div>
+                    </div>
+                    <div class="list-item-operate">
+
+                        <span class="status-btn operate-btn"
+                              @click="changeStatus(item)"
+                              :class="[computedOperateBtn(item).class]">
+                            {% verbatim myblock %}
+                            {{computedOperateBtn(item).text}}
+                            {% endverbatim myblock %}
+                        </span>
+
+                        {% verbatim myblock %}
+                        <span class="list-item-operate-describe" v-cloak>已获取 {{item.data_count}} 条数据</span>
+                        {% endverbatim myblock %}
+                    </div>
+
+                </li>
+            </ul>
+            <ul class="list-reset" v-if="isPosting || !list.length">
+                <li class="list-item" style="text-align: center;width: 100%;" v-if="isPosting">加载中...</li>
+                <li class="list-item" style="text-align: center;width: 100%;" v-if="isPosting && !list.length">暂无爬虫信息
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+</body>
+<script src="static/vue.js"></script>
+<script src="static/config.js"></script>
+<script>
+    let vm = new Vue({
+        el: "#app",
+        data: {
+            list: [],
+            isPosting: false,
+            config: {
+                head: {
+                    show: true,
+                    logoImg: "",
+                    title: "成电彭于晏 爬虫",
+                    style: {}
+                },
+                main: {
+                    listTitle: "爬虫列表"
+                }
+            }
+        },
+        created() {
+
+            //初始化列表
+            this.getListData();
+
+        },
+        methods: {
+            httpPost(url, params = {}) {
+
+                const _this = this;
+                this.$set(this, "isPosting", true);
+                return new Promise((resolve, reject) => {
+
+                    const xhr = new XMLHttpRequest();
+
+                    xhr.open("POST", url);
+
+                    xhr.setRequestHeader("Content-Type", "application/json;charset=utf-8");
+                    xhr.setRequestHeader("Accept", "application/json, text/plain");
+
+                    xhr.send(JSON.stringify(params));
+
+                    xhr.onreadystatechange = function () {
+
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+
+                            let data = JSON.parse(xhr.responseText);
+
+                            if (data.status === 0) {
+                                resolve(data);
+                            } else {
+                                reject();
+                            }
+
+
+                        }
+
+                    };
+                });
+
+            },
+            //获取列表数据
+            getListData() {
+                const _this = this;
+                return this.httpPost(config.crawlerAddress)
+                    .then(res => {
+                        const {result = []} = res || {};
+                        _this.$set(this, "isPosting", false);
+                        _this.$set(_this, "list", result);
+                    })
+                    .catch(() => {
+                        _this.$set(this, "isPosting", false);
+                    });
+            },
+            changeStatus(item) {
+
+                const _this = this;
+
+                const {state} = item || {};
+
+                //正在停止则不进行操作
+                if (state && state === 3) {
+                    return;
+                }
+
+                const params = {
+                    id: item.id
+                };
+
+                return this.httpPost(config.changeStateAddress, params)
+                    .then(res => {
+                        return _this.getListData();
+                    })
+                    .catch(() => {
+                        _this.$set(this, "isPosting", false);
+                    });
+            }
+        },
+        computed: {
+
+            computedOperateBtn() {
+                return function (item) {
+
+                    const {state} = item || {};
+
+                    const result = {};
+
+                    if (state && state === 1) {
+                        result.text = "停止";
+                        result.class = "btn-stop";
+                    }
+
+                    if (state && state === 2) {
+                        result.text = "启动";
+                        result.class = "btn-start";
+                    }
+
+                    if (state && state === 3) {
+                        result.text = "正在停止...";
+                        result.class = "btn-stoping";
+                    }
+
+
+                    return result;
+                }
+            },
+
+            //1:已经启动,2:已经停止,3:停止中
+            computedTitleBtn() {
+                return function (item) {
+                    const {state} = item || {};
+                    const result = {};
+
+                    if (state && state === 1) {
+                        result.text = "已启动";
+                        result.class = "btn-start";
+                    }
+
+                    if (state && state === 2) {
+                        result.text = "已停止";
+                        result.class = "btn-stop";
+                    }
+
+                    if (state && state === 3) {
+                        result.text = "正在停止...";
+                        result.class = "btn-stoping";
+                    }
+
+
+                    return result;
+                }
+            }
+
+        }
+    });
+</script>
+</html>
